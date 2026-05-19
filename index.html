@@ -1,21 +1,164 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
+  <meta charset="UTF-8">
   <title>DVC AI Assistant</title>
+
+  <style>
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 850px;
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 0 25px rgba(0,0,0,0.4);
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 42px;
+      margin-bottom: 10px;
+      color: #38bdf8;
+    }
+
+    .subtitle {
+      color: #cbd5e1;
+      margin-bottom: 35px;
+      font-size: 18px;
+    }
+
+    .input-container {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 25px;
+      flex-wrap: wrap;
+    }
+
+    input {
+      width: 60%;
+      min-width: 260px;
+      padding: 16px;
+      border-radius: 12px;
+      border: none;
+      font-size: 16px;
+      outline: none;
+      background: #f8fafc;
+    }
+
+    button {
+      padding: 16px 22px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    .ask-btn {
+      background: #0ea5e9;
+      color: white;
+    }
+
+    .ask-btn:hover {
+      background: #0284c7;
+      transform: scale(1.05);
+    }
+
+    .voice-btn {
+      background: #22c55e;
+      color: white;
+    }
+
+    .voice-btn:hover {
+      background: #16a34a;
+      transform: scale(1.05);
+    }
+
+    .answer-box {
+      margin-top: 30px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 25px;
+      min-height: 120px;
+      text-align: left;
+      line-height: 1.7;
+      color: #f1f5f9;
+      overflow-y: auto;
+    }
+
+    .label {
+      font-weight: bold;
+      margin-bottom: 12px;
+      color: #38bdf8;
+      font-size: 20px;
+    }
+
+    .footer {
+      margin-top: 25px;
+      color: #94a3b8;
+      font-size: 14px;
+    }
+
+  </style>
 </head>
-<body style="font-family: Arial; padding: 20px;">
 
-<h1>DVC AI Assistant</h1>
+<body>
 
-<input type="text" id="question" placeholder="Ask question..." size="60">
+<div class="container">
 
-<button onclick="sendQuestion()">Ask</button>
+  <h1>DVC AI Assistant</h1>
 
-<button onclick="startVoice()">🎤 Speak</button>
+  <div class="subtitle">
+    Enterprise Multi-Agent Intelligence Platform for Utility & Transmission Operations
+  </div>
 
-<p><b>Answer:</b></p>
+  <div class="input-container">
 
-<div id="answer"></div>
+    <input type="text" id="question" placeholder="Ask any technical question...">
+
+    <button class="ask-btn" onclick="sendQuestion()">
+      Ask
+    </button>
+
+    <button class="voice-btn" onclick="startVoice()">
+      🎤 Speak
+    </button>
+
+  </div>
+
+  <div class="answer-box">
+
+    <div class="label">AI Response</div>
+
+    <div id="answer">
+      Your AI response will appear here...
+    </div>
+
+  </div>
+
+  <div class="footer">
+    Powered by Dify + OpenAI + Enterprise RAG
+  </div>
+
+</div>
 
 <script>
 
@@ -26,6 +169,9 @@ const DIFY_API_URL = "https://api.dify.ai/v1/chat-messages";
 async function sendQuestion(textInput=null) {
 
     let question = textInput || document.getElementById("question").value;
+
+    document.getElementById("answer").innerHTML =
+      "⏳ Thinking...";
 
     const response = await fetch(DIFY_API_URL, {
         method: "POST",
@@ -44,24 +190,26 @@ async function sendQuestion(textInput=null) {
     const data = await response.json();
 
     document.getElementById("answer").innerText = data.answer;
-const audioResponse = await fetch('/api/tts', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-        text: data.answer
-    })
-});
 
-const audioBlob = await audioResponse.blob();
+    // OpenAI TTS Playback
 
-const audioUrl = URL.createObjectURL(audioBlob);
+    const audioResponse = await fetch('/api/tts', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            text: data.answer
+        })
+    });
 
-const audio = new Audio(audioUrl);
+    const audioBlob = await audioResponse.blob();
 
-audio.play();
+    const audioUrl = URL.createObjectURL(audioBlob);
 
+    const audio = new Audio(audioUrl);
+
+    audio.play();
 }
 
 function startVoice() {
@@ -86,3 +234,4 @@ function startVoice() {
 
 </body>
 </html>
+
